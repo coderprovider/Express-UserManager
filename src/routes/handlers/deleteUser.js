@@ -1,4 +1,4 @@
-const { keys: routeKeys } = require('../defaults');
+const { keys: routeKeys } = require("../defaults");
 const {
   emit,
   hooks,
@@ -6,18 +6,20 @@ const {
   getValidId,
   statusCodes,
   generateRoute,
-} = require('./_utils');
-const errorName = 'deleteUserError';
+} = require("./_utils");
+const errorName = "deleteUserError";
 let responseData;
 
 module.exports = deleteUser;
 
 async function deleteUser(req, res, next) {
-  if(!req.params.userId || !req.body.userId) {
+  if (!req.params.userId || !req.body.userId) {
     responseData = {
-      errors: [{
-        msg: 'The user id must be specified in the request url and request body!',
-      }]
+      errors: [
+        {
+          msg: "The user id must be specified in the request url and request body!",
+        },
+      ],
     };
 
     emit(errorName, responseData);
@@ -25,11 +27,13 @@ async function deleteUser(req, res, next) {
     return;
   }
 
-  if(req.params.userId.toString() !== req.body.userId.toString()) {
+  if (req.params.userId.toString() !== req.body.userId.toString()) {
     responseData = {
-      errors: [{
-        msg: 'The user id must be specified in the request url and request body!',
-      }]
+      errors: [
+        {
+          msg: "The user id must be specified in the request url and request body!",
+        },
+      ],
     };
 
     emit(errorName, responseData);
@@ -37,15 +41,17 @@ async function deleteUser(req, res, next) {
     return;
   }
 
-  const store = appModule.get('store');
+  const store = appModule.get("store");
   const { userId } = req.body;
   const userData = await store.findById(userId);
 
-  if(!userData) {
+  if (!userData) {
     responseData = {
-      errors: [{
-        msg: 'User not found!',
-      }]
+      errors: [
+        {
+          msg: "User not found!",
+        },
+      ],
     };
 
     emit(errorName, responseData);
@@ -61,7 +67,7 @@ async function deleteUser(req, res, next) {
    * that is deleting another user.
    * In such cases, once the user deletes their account, we log them out.
    */
-  if(getValidId(req.session.user.id) === getValidId(userId)) {
+  if (getValidId(req.session.user.id) === getValidId(userId)) {
     req.session.user = null; // Kill the user's session
   }
 
@@ -69,9 +75,15 @@ async function deleteUser(req, res, next) {
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routeKeys.deleteUser), req, res, next);
+  hooks.execute(
+    "response",
+    generateRoute(routeKeys.deleteUser),
+    req,
+    res,
+    next
+  );
 
-  emit('deleteUserSuccess', res.body);
+  emit("deleteUserSuccess", res.body);
   res.status(statusCodes.ok).json(res.body);
   return;
 }

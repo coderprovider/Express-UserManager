@@ -1,6 +1,6 @@
-const emailValidator = require('email-validator');
-const { checkPassword, generateAuthToken } = require('../../utils/auth');
-const { keys: routeKeys } = require('../defaults');
+const emailValidator = require("email-validator");
+const { checkPassword, generateAuthToken } = require("../../utils/auth");
+const { keys: routeKeys } = require("../defaults");
 const {
   env,
   emit,
@@ -8,26 +8,28 @@ const {
   appModule,
   statusCodes,
   publicFields,
-  generateRoute
-} = require('./_utils');
-const errorName = 'loginError';
+  generateRoute,
+} = require("./_utils");
+const errorName = "loginError";
 let responseData;
 
 module.exports = login;
 
 async function login(req, res, next) {
-  const store = appModule.get('store');
+  const store = appModule.get("store");
   const { login, password } = req.body;
   const isEmail = emailValidator.validate(login);
   const userData = isEmail
     ? await store.findByEmail(login)
     : await store.findByUsername(login);
 
-  if(!userData) {
+  if (!userData) {
     responseData = {
-      errors: [{
-        msg: 'User not found!',
-      }]
+      errors: [
+        {
+          msg: "User not found!",
+        },
+      ],
     };
 
     emit(errorName, responseData);
@@ -35,12 +37,14 @@ async function login(req, res, next) {
     return;
   }
 
-  if(!(await checkPassword(password, userData.password))) {
+  if (!(await checkPassword(password, userData.password))) {
     responseData = {
-      errors: [{
-        msg: 'The username or password you have provided is invalid',
-        param: 'password'
-      }]
+      errors: [
+        {
+          msg: "The username or password you have provided is invalid",
+          param: "password",
+        },
+      ],
     };
 
     emit(errorName, responseData);
@@ -51,28 +55,31 @@ async function login(req, res, next) {
   const user = {};
 
   // Populate the user variable with values we want to return to the client
-  publicFields.forEach(key => user[key] = userData[key]);
+  publicFields.forEach((key) => (user[key] = userData[key]));
 
   req.session.user = user; // Maintain the user's data in current session
 
   // Create an auth token for the user so we can validate future requests
-  const { authTokenSecret, authTokenExpiry } = appModule.get('security') || {};
+  const { authTokenSecret, authTokenExpiry } = appModule.get("security") || {};
   const tokenSecret = authTokenSecret || env.AUTH_TOKEN_SECRET;
   const tokenExpiry = authTokenExpiry || env.AUTH_TOKEN_EXPIRY;
   const { token, expiry } = generateAuthToken(
-    user.id, user.email, tokenSecret, eval(tokenExpiry) + 's'
+    user.id,
+    user.email,
+    tokenSecret,
+    eval(tokenExpiry) + "s"
   );
   const authorization = { token: `Bearer ${token}`, expiresIn: expiry };
 
   responseData = {
-    data: { user,  authorization }
+    data: { user, authorization },
   };
 
   res.body = responseData;
 
-  hooks.execute('response', generateRoute(routeKeys.login), req, res, next);
+  hooks.execute("response", generateRoute(routeKeys.login), req, res, next);
 
-  emit('loginSuccess', res.body);
+  emit("loginSuccess", res.body);
   res.status(statusCodes.ok).json(res.body);
   return;
 }
