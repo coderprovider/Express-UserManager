@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
-const jwt =  require('jsonwebtoken');
-const randomBytes = require('random-bytes');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const randomBytes = require("random-bytes");
 
 const hashPassword = async (password) => {
   return await bcrypt.hash(password, 10);
@@ -11,10 +11,10 @@ const checkPassword = async (password, hashedPassword) => {
 };
 
 const generateAuthToken = (userId, email, tokenSecret, tokenExpiry) => {
-  const authToken   = randomBytes(32).toString('hex');
-  const tokenData   = { userId, email, authToken };
+  const authToken = randomBytes(32).toString("hex");
+  const tokenData = { userId, email, authToken };
   const signedToken = jwt.sign(tokenData, tokenSecret, {
-    expiresIn: tokenExpiry
+    expiresIn: tokenExpiry,
   });
 
   return { token: signedToken, expiry: tokenExpiry };

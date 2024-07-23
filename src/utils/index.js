@@ -1,30 +1,35 @@
-const userModule = require('../user-module');
+const userModule = require("../user-module");
 
 function emit(event, ...data) {
   userModule.emit(event, ...data);
 }
 
 function convertToBoolean(data) {
-  data = typeof data === 'string' ? data.toLowerCase() : data;
+  data = typeof data === "string" ? data.toLowerCase() : data;
 
-  if(data === 'false' || data === 'null' || data === 'undefined') {
+  if (data === "false" || data === "null" || data === "undefined") {
     return false;
   }
 
   const parsedData = parseInt(data);
-  return (isNaN(parsedData) ? Boolean(data) : !!parsedData);
+  return isNaN(parsedData) ? Boolean(data) : !!parsedData;
 }
 
 function getValidId(id) {
-  if(!id) { // handle null and undefined cases
-    return ''.trim();
+  if (!id) {
+    // handle null and undefined cases
+    return "".trim();
   }
 
-  switch(typeof id) {
-  case 'string': return id.trim();
-  case 'object': return id.toString().trim();
-  case 'number': return id;
-  default      : return ''.trim();
+  switch (typeof id) {
+    case "string":
+      return id.trim();
+    case "object":
+      return id.toString().trim();
+    case "number":
+      return id;
+    default:
+      return "".trim();
   }
 }
 
@@ -40,20 +45,25 @@ function generateRoute(target) {
    *
    * To aid working with hooks is the reason this function was originally created.
    */
-  const routes = userModule.get('routes');
+  const routes = userModule.get("routes");
 
-  switch(target) {
-  case 'list':
-  case 'search':
-  case 'getUser':
-  case 'logout': return `GET ${routes[target]}`;
+  switch (target) {
+    case "list":
+    case "search":
+    case "getUser":
+    case "logout":
+      return `GET ${routes[target]}`;
 
-  case 'signup':
-  case 'login': return `POST ${routes[target]}`;
+    case "signup":
+    case "login":
+      return `POST ${routes[target]}`;
 
-  case 'updateUser': return `PUT ${routes[target]}`;
-  case 'deleteUser': return `DELETE ${routes[target]}`;
-  default: return '';
+    case "updateUser":
+      return `PUT ${routes[target]}`;
+    case "deleteUser":
+      return `DELETE ${routes[target]}`;
+    default:
+      return "";
   }
 }
 
